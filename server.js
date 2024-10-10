@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.on("messageupdated", (message) => {
-    console.log("mensagem recebida", message);
+    console.log("message received", message);
 
     // RecipientId
     const recipientId = _.get(message, "recipientId", 0);
@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = 8080;
+const PORT = 8888;
 httpsServer.listen(PORT, () => {
   console.log(`HTTPS Server is running on port ${PORT}`);
 });
