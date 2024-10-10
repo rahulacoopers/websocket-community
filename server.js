@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 80;
 httpsServer.listen(PORT, () => {
   console.log(`HTTPS Server is running on port ${PORT}`);
 });
