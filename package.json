@@ -1,19 +1,16 @@
 {
-  "name": "websocket",
+  "name": "websocket-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@azure/web-pubsub-socket.io": "^1.2.0",
-    "express": "^4.21.0",
-    "https": "^1.0.0",
-    "lodash": "^4.17.21",
-    "socket.io": "^4.8.0"
+    "express": "^4.17.1",
+    "socket.io": "^4.5.1",
+    "lodash": "^4.17.21"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
