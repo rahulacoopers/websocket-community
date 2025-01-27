@@ -1,15 +1,16 @@
 {
   "name": "websocket",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@azure/web-pubsub-socket.io": "^1.2.0",
     "express": "^4.21.0",
     "https": "^1.0.0",
     "lodash": "^4.17.21",
