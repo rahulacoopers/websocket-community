@@ -21,21 +21,46 @@ const io = new Server(httpsServer, {
 });
 
 // Add Azure Web PubSub configuration
-const webPubSubConnectionString = "YOUR_AZURE_WEB_PUBSUB_CONNECTION_STRING";
-const hub = "YOUR_HUB_NAME";
+const webPubSubConnectionString = "Endpoint=https://comm-pubsub-socket.webpubsub.azure.com;AccessKey=xNKGQNuKF+kVU66EvdGCvl3ntdWsxF/21rPbXoWl7e8=;Version=1.0;";
+const hub = "https://comm-pubsub-socket.webpubsub.azure.com";
 
-// Apply Azure Web PubSub middleware
-useAzureSocketIO(io, {
-  connectionString: webPubSubConnectionString,
-  hub: hub,
-}).catch((err) => {
-  console.error("Failed to connect to Azure Web PubSub:", err);
-});
+// Wrap Azure setup in async function
+async function setupAzureWebPubSub() {
+  try {
+    await useAzureSocketIO(io, {
+      connectionString: webPubSubConnectionString,
+      hub: hub,
+    });
+  } catch (err) {
+    console.error("Failed to connect to Azure Web PubSub:", err);
+  }
+}
+
+// Call the setup function
+setupAzureWebPubSub();
 
 // Rest of your Socket.IO logic remains the same
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("a user connected");
-  // ... rest of your event handlers
+
+  socket.on("messageupdated", (message) => {
+    console.log("mensagem recebida", message);
+
+    // RecipientId
+    const recipientId = _.get(message, "recipientId", 0);
+    const senderId = _.get(message, "senderId", 0);
+    // const message = _.get(message, "message", "");
+
+    io.emit("messageupdated", { recipientId, senderId });
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("user disconnected", reason);
+  });
+
+  socket.on("error", (error) => {
+    console.error("Socket error:", error);
+  });
 });
 
 const PORT = process.env.PORT || 8080;
