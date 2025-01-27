@@ -7,8 +7,8 @@ const _ = require("lodash");
 const app = express();
 
 // Load self-signed certificate files
-const privateKey = fs.readFileSync("selfsigned.key", "utf8");
-const certificate = fs.readFileSync("selfsigned.crt", "utf8");
+const privateKey = fs.readFileSync("privkey.pem", "utf8");
+const certificate = fs.readFileSync("fullchain.pem", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 
 const httpsServer = https.createServer(credentials, app);
@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.on("messageupdated", (message) => {
-    console.log("message received", message);
+    console.log("mensagem recebida", message);
 
     // RecipientId
     const recipientId = _.get(message, "recipientId", 0);
@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = 8888;
+const PORT = process.env.PORT || 8080;
 httpsServer.listen(PORT, () => {
   console.log(`HTTPS Server is running on port ${PORT}`);
 });
