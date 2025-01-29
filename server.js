@@ -15,7 +15,7 @@ const io = new Server(server, {
 });
 
 // Azure Web PubSub configuration
-const connectionString = "Endpoint=https://comm-pubsub-socket.webpubsub.azure.com;AccessKey=xNKGQNuKF+kVU66EvdGCvl3ntdWsxF/21rPbXoWl7e8=;Version=1.0;";
+const connectionString = "Endpoint=https://cca-d-hpc-euw-wps.webpubsub.azure.com;AccessKey=Ba23pVSo165XrFSY76n0Wex2DwpKXULxFrvAeaFq2cfs5degD0LLJQQJ99BAAC5RqLJXJ3w3AAAAAWPSPhuA;Version=1.0;";
 const hubName = "Hub";
 
 // Setup Azure Web PubSub integration
@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
   console.info("a user connected");
 
   socket.on("messageupdated", (message) => {
-    console.info("mensagem recebida", message);
+    console.info("message received", message);
     const recipientId = _.get(message, "recipientId", 0);
     const senderId = _.get(message, "senderId", 0);
     io.emit("messageupdated", { recipientId, senderId });
