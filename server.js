@@ -1,53 +1,53 @@
 const express = require("express");
-const { Server } = require("socket.io");
-const { useAzureSocketIO } = require("@azure/web-pubsub-socket.io");
+const { WebPubSubServiceClient } = require("@azure/web-pubsub");
 const _ = require("lodash");
 
 const app = express();
 const server = require("http").createServer(app);
 
-// Initialize Socket.IO server
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-  transports: ["websocket", "polling"],
-});
-
 // Azure Web PubSub configuration
-const connectionString = "Endpoint=https://comm-pubsub-socket.webpubsub.azure.com;AccessKey=xNKGQNuKF+kVU66EvdGCvl3ntdWsxF/21rPbXoWl7e8=;Version=1.0;";
+const connectionString = "Endpoint=https://comm-pubsub-regular.webpubsub.azure.com;AccessKey=8AZnyDaPgicpvKrCzajByFRdZ7DYVWCWG0RxpemaZ1tCHhNipf7vJQQJ99BBAC5RqLJXJ3w3AAAAAWPSGX9b;Version=1.0;";
 const hubName = "Hub";
 
-// Setup Azure Web PubSub integration
-async function setupAzureWebPubSub() {
+// Initialize Web PubSub service client
+const serviceClient = new WebPubSubServiceClient(connectionString, hubName);
+
+// Endpoint for clients to get connection token
+app.get("/negotiate", async (req, res) => {
   try {
-    await useAzureSocketIO(io, {
-      hub: hubName,
-      connectionString: connectionString,
-    });
-    console.info("Azure Web PubSub integration successful");
+    const token = await serviceClient.getClientAccessToken();
+    res.json({ url: token.url });
   } catch (error) {
-    console.error("Azure Web PubSub integration failed:", error);
+    console.error("Error generating token:", error);
+    res.status(500).json({ error: "Failed to generate token" });
   }
-}
+});
 
-// Initialize Azure Web PubSub
-setupAzureWebPubSub();
+// Handle WebPubSub events
+serviceClient.on("connected", (event) => {
+  console.info("Client connected:", event.connectionId);
+});
 
-// Socket.IO event handlers
-io.on("connection", (socket) => {
-  console.info("a user connected");
+serviceClient.on("disconnected", (event) => {
+  console.info("Client disconnected:", event.connectionId);
+});
 
-  socket.on("messageupdated", (message) => {
-    console.info("message received", message);
+serviceClient.on("message", async (event) => {
+  try {
+    const message = JSON.parse(event.data);
+    console.info("Message received:", message);
+
     const recipientId = _.get(message, "recipientId", 0);
     const senderId = _.get(message, "senderId", 0);
-    io.emit("messageupdated", { recipientId, senderId });
-  });
 
-  socket.on("disconnect", (reason) => {
-    console.info("user disconnected", reason);
-  });
+    // Broadcast message to all clients
+    await serviceClient.sendToAll({
+      recipientId,
+      senderId,
+    });
+  } catch (error) {
+    console.error("Error processing message:", error);
+  }
 });
 
 const PORT = process.env.PORT || 8080;
